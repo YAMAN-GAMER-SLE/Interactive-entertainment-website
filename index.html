@@ -395,6 +395,138 @@
             opacity: 0.8;
         }
         
+        /* إعدادات الصوت */
+        .audio-settings {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: right;
+        }
+        
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+        
+        .settings-header h3 {
+            margin: 0;
+        }
+        
+        .settings-content {
+            display: none;
+        }
+        
+        .settings-content.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; max-height: 0; }
+            to { opacity: 1; max-height: 500px; }
+        }
+        
+        .setting-item {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .setting-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .setting-value {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #4cd964;
+            cursor: pointer;
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #4cd964;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .equalizer {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .eq-band {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .eq-label {
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+            opacity: 0.7;
+        }
+        
+        .eq-slider {
+            height: 100px;
+            writing-mode: bt-lr;
+            -webkit-appearance: slider-vertical;
+        }
+        
+        .preset-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .preset-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .preset-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .preset-btn.active {
+            background: rgba(76, 217, 100, 0.5);
+        }
+        
         /* تصميم متجاوب */
         @media (max-width: 768px) {
             h1 {
@@ -408,6 +540,15 @@
             .memory-board {
                 grid-template-columns: repeat(3, 1fr);
                 max-width: 300px;
+            }
+            
+            .equalizer {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .eq-band {
+                flex: 0 0 30%;
             }
         }
     </style>
@@ -502,6 +643,7 @@
                         <button class="control-btn" id="prev-btn">⏮</button>
                         <button class="control-btn play-btn" id="play-btn">▶</button>
                         <button class="control-btn" id="next-btn">⏭</button>
+                        <button class="control-btn" id="volume-btn">🔊</button>
                     </div>
                     <div class="progress-container" id="progress-container">
                         <div class="progress" id="progress"></div>
@@ -510,6 +652,91 @@
                         <span id="current-time">0:00</span>
                         <span id="duration">0:00</span>
                     </div>
+                    <!-- إضافة زر إعادة التشغيل التلقائي -->
+                    <div class="repeat-control" style="margin-top: 15px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                        <button class="control-btn" id="repeat-btn" title="إعادة التشغيل التلقائي">🔁</button>
+                        <span id="repeat-status" style="font-size: 0.9rem;">إيقاف</span>
+                    </div>
+                    
+                    <!-- إعدادات الصوت -->
+                    <div class="audio-settings">
+                        <div class="settings-header" id="settings-toggle">
+                            <h3>إعدادات الصوت</h3>
+                            <span>▼</span>
+                        </div>
+                        <div class="settings-content" id="settings-content">
+                            <!-- مستوى الصوت -->
+                            <div class="setting-item">
+                                <div class="setting-label">
+                                    <span>مستوى الصوت</span>
+                                    <span class="setting-value" id="volume-value">50%</span>
+                                </div>
+                                <input type="range" min="0" max="100" value="50" class="slider" id="volume-slider">
+                            </div>
+                            
+                            <!-- التوازن -->
+                            <div class="setting-item">
+                                <div class="setting-label">
+                                    <span>التوازن</span>
+                                    <span class="setting-value" id="balance-display">مركز</span>
+                                </div>
+                                <input type="range" min="0" max="100" value="50" class="slider" id="balance-slider">
+                            </div>
+                            
+                            <!-- إعدادات الصوت -->
+                            <div class="setting-item">
+                                <div class="setting-label">
+                                    <span>المسرع</span>
+                                    <span class="setting-value" id="speed-value">1.0x</span>
+                                </div>
+                                <input type="range" min="5" max="20" value="10" class="slider" id="speed-slider">
+                            </div>
+                            
+                            <!-- الإيكوالايزر -->
+                            <div class="setting-item">
+                                <div class="setting-label">
+                                    <span>معادل الصوت</span>
+                                    <span class="setting-value" id="eq-preset">طبيعي</span>
+                                </div>
+                                <div class="equalizer" id="equalizer">
+                                    <div class="eq-band">
+                                        <span class="eq-label">منخفض</span>
+                                        <input type="range" min="0" max="100" value="50" class="slider eq-slider" id="eq-low">
+                                    </div>
+                                    <div class="eq-band">
+                                        <span class="eq-label">متوسط</span>
+                                        <input type="range" min="0" max="100" value="50" class="slider eq-slider" id="eq-mid">
+                                    </div>
+                                    <div class="eq-band">
+                                        <span class="eq-label">مرتفع</span>
+                                        <input type="range" min="0" max="100" value="50" class="slider eq-slider" id="eq-high">
+                                    </div>
+                                </div>
+                                <div class="preset-buttons">
+                                    <button class="preset-btn" data-preset="normal">طبيعي</button>
+                                    <button class="preset-btn" data-preset="bass">جهير</button>
+                                    <button class="preset-btn" data-preset="treble">حدة</button>
+                                    <button class="preset-btn" data-preset="rock">روك</button>
+                                    <button class="preset-btn" data-preset="pop">بوب</button>
+                                </div>
+                            </div>
+                            
+                            <!-- إعدادات إضافية -->
+                            <div class="setting-item">
+                                <div class="setting-label">
+                                    <span>جودة الصوت</span>
+                                    <span class="setting-value" id="quality-value">عالية</span>
+                                </div>
+                                <input type="range" min="1" max="3" value="3" class="slider" id="quality-slider">
+                            </div>
+                            
+                            <!-- إعادة تعيين الإعدادات -->
+                            <div style="text-align: center; margin-top: 20px;">
+                                <button class="btn" id="reset-settings" style="padding: 8px 20px; font-size: 0.9rem;">إعادة تعيين الإعدادات</button>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <audio id="audio-player"></audio>
                 </div>
             </section>
@@ -531,6 +758,214 @@
     </div>
 
     <script>
+        // تعريف المتغيرات العامة
+        let isRepeatEnabled = false;
+        let volumeLevel = 50;
+        let balanceLevel = 50;
+        let playbackSpeed = 1.0;
+        let eqLowValue = 50;
+        let eqMidValue = 50;
+        let eqHighValue = 50;
+        let audioQuality = 3;
+        let currentEQPreset = 'normal';
+        let isSettingsOpen = false;
+
+        // دالة لحفظ التفضيلات في localStorage
+        function savePreferences() {
+            const preferences = {
+                repeatEnabled: isRepeatEnabled,
+                volume: volumeLevel,
+                balance: balanceLevel,
+                speed: playbackSpeed,
+                eqLow: eqLowValue,
+                eqMid: eqMidValue,
+                eqHigh: eqHighValue,
+                quality: audioQuality,
+                eqPreset: currentEQPreset
+            };
+            localStorage.setItem('musicPreferences', JSON.stringify(preferences));
+        }
+
+        // دالة لتحميل التفضيلات من localStorage
+        function loadPreferences() {
+            const savedPreferences = localStorage.getItem('musicPreferences');
+            if (savedPreferences) {
+                const preferences = JSON.parse(savedPreferences);
+                isRepeatEnabled = preferences.repeatEnabled || false;
+                volumeLevel = preferences.volume || 50;
+                balanceLevel = preferences.balance || 50;
+                playbackSpeed = preferences.speed || 1.0;
+                eqLowValue = preferences.eqLow || 50;
+                eqMidValue = preferences.eqMid || 50;
+                eqHighValue = preferences.eqHigh || 50;
+                audioQuality = preferences.quality || 3;
+                currentEQPreset = preferences.eqPreset || 'normal';
+                
+                // تحديث واجهة المستخدم بناءً على التفضيلات المحفوظة
+                updateRepeatUI();
+                updateVolumeUI();
+                updateBalanceUI();
+                updateSpeedUI();
+                updateEqualizerUI();
+                updateQualityUI();
+                updateEQPresetUI();
+            }
+        }
+
+        // دالة لتحديث واجهة زر إعادة التشغيل
+        function updateRepeatUI() {
+            const repeatBtn = document.getElementById('repeat-btn');
+            const repeatStatus = document.getElementById('repeat-status');
+            
+            if (isRepeatEnabled) {
+                repeatBtn.style.background = 'rgba(76, 217, 100, 0.7)';
+                repeatBtn.title = 'إيقاف إعادة التشغيل التلقائي';
+                repeatStatus.textContent = 'تفعيل';
+            } else {
+                repeatBtn.style.background = 'rgba(255, 255, 255, 0.2)';
+                repeatBtn.title = 'تفعيل إعادة التشغيل التلقائي';
+                repeatStatus.textContent = 'إيقاف';
+            }
+        }
+
+        // دالة لتحديث واجهة مستوى الصوت
+        function updateVolumeUI() {
+            const volumeSlider = document.getElementById('volume-slider');
+            const volumeValue = document.getElementById('volume-value');
+            const audioPlayer = document.getElementById('audio-player');
+            const volumeBtn = document.getElementById('volume-btn');
+            
+            volumeSlider.value = volumeLevel;
+            volumeValue.textContent = `${volumeLevel}%`;
+            if (audioPlayer) {
+                audioPlayer.volume = volumeLevel / 100;
+            }
+            
+            // تحديث أيقونة زر الصوت
+            if (volumeLevel === 0) {
+                volumeBtn.textContent = '🔇';
+            } else if (volumeLevel < 30) {
+                volumeBtn.textContent = '🔈';
+            } else if (volumeLevel < 70) {
+                volumeBtn.textContent = '🔉';
+            } else {
+                volumeBtn.textContent = '🔊';
+            }
+        }
+
+        // دالة لتحديث واجهة التوازن
+        function updateBalanceUI() {
+            const balanceSlider = document.getElementById('balance-slider');
+            const balanceDisplay = document.getElementById('balance-display');
+            
+            balanceSlider.value = balanceLevel;
+            if (balanceLevel < 45) {
+                balanceDisplay.textContent = 'يسار';
+            } else if (balanceLevel > 55) {
+                balanceDisplay.textContent = 'يمين';
+            } else {
+                balanceDisplay.textContent = 'مركز';
+            }
+        }
+
+        // دالة لتحديث واجهة سرعة التشغيل
+        function updateSpeedUI() {
+            const speedSlider = document.getElementById('speed-slider');
+            const speedValue = document.getElementById('speed-value');
+            const audioPlayer = document.getElementById('audio-player');
+            
+            speedSlider.value = playbackSpeed * 10;
+            speedValue.textContent = `${playbackSpeed.toFixed(1)}x`;
+            if (audioPlayer) {
+                audioPlayer.playbackRate = playbackSpeed;
+            }
+        }
+
+        // دالة لتحديث واجهة المعادل
+        function updateEqualizerUI() {
+            const eqLowSlider = document.getElementById('eq-low');
+            const eqMidSlider = document.getElementById('eq-mid');
+            const eqHighSlider = document.getElementById('eq-high');
+            
+            eqLowSlider.value = eqLowValue;
+            eqMidSlider.value = eqMidValue;
+            eqHighSlider.value = eqHighValue;
+        }
+
+        // دالة لتحديث واجهة جودة الصوت
+        function updateQualityUI() {
+            const qualitySlider = document.getElementById('quality-slider');
+            const qualityValue = document.getElementById('quality-value');
+            
+            qualitySlider.value = audioQuality;
+            const qualityTexts = ['منخفضة', 'متوسطة', 'عالية'];
+            qualityValue.textContent = qualityTexts[audioQuality - 1] || 'عالية';
+        }
+
+        // دالة لتحديث واجهة إعدادات المعادل المسبقة
+        function updateEQPresetUI() {
+            const eqPreset = document.getElementById('eq-preset');
+            const presetButtons = document.querySelectorAll('.preset-btn');
+            
+            presetButtons.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-preset') === currentEQPreset) {
+                    btn.classList.add('active');
+                }
+            });
+            eqPreset.textContent = getEQPresetName(currentEQPreset);
+        }
+
+        // دالة للحصول على اسم الإعداد المسبق للمعادل
+        function getEQPresetName(preset) {
+            const presetNames = {
+                'normal': 'طبيعي',
+                'bass': 'جهير',
+                'treble': 'حدة',
+                'rock': 'روك',
+                'pop': 'بوب',
+                'custom': 'مخصص'
+            };
+            return presetNames[preset] || 'طبيعي';
+        }
+
+        // دالة لتطبيق الإعدادات المسبقة للمعادل
+        function applyEQPreset(preset) {
+            currentEQPreset = preset;
+            
+            switch(preset) {
+                case 'normal':
+                    eqLowValue = 50;
+                    eqMidValue = 50;
+                    eqHighValue = 50;
+                    break;
+                case 'bass':
+                    eqLowValue = 80;
+                    eqMidValue = 40;
+                    eqHighValue = 30;
+                    break;
+                case 'treble':
+                    eqLowValue = 30;
+                    eqMidValue = 40;
+                    eqHighValue = 80;
+                    break;
+                case 'rock':
+                    eqLowValue = 70;
+                    eqMidValue = 60;
+                    eqHighValue = 50;
+                    break;
+                case 'pop':
+                    eqLowValue = 50;
+                    eqMidValue = 70;
+                    eqHighValue = 60;
+                    break;
+            }
+            
+            updateEqualizerUI();
+            updateEQPresetUI();
+            savePreferences();
+        }
+
         // التنقل بين الأقسام
         document.querySelectorAll('.nav-btn').forEach(button => {
             button.addEventListener('click', () => {
@@ -553,7 +988,7 @@
             });
         });
         
-        // قسم النكات - 100 نكتة
+        // قسم النكات
         const jokes = [
             "لماذا لا يثق العلماء في الذرات؟ لأنها تصنع كل شيء!",
             "ماذا قال البحر للشاطئ؟ لا شيء، لقد فقط موجه!",
@@ -564,97 +999,7 @@
             "لماذا لا يلعب النمل ألعاب الفيديو؟ لأنه يخشى أن يعلق في الويب!",
             "ما هو الشيء الذي كلما أخذت منه كبر؟ الحفرة!",
             "لماذا يلبس التمساح ملابس السباحة؟ لأنه يخاف أن يرى الناس عورته!",
-            "متى يكون الباب ليس بابًا؟ عندما يكون مفتوحًا!",
-            "لماذا لا يستطيع النملة أن تقترض المال من البنك؟ لأن والدتها لم توقع على الإذن!",
-            "ما هو الشيء الذي يسمع بلا أذن ويتكلم بلا لسان؟ الهاتف!",
-            "لماذا تذهب الطيور إلى المدرسة؟ لتتعلم كيف تطير!",
-            "ما هو الشيء الذي يمشي ويقف وليس له أرجل؟ الساعة!",
-            "لماذا يحب السمك البحر؟ لأنه لا يستطيع العيش على الأرض!",
-            "ما هو الشيء الذي يدور حول البيت دون أن يتحرك؟ الجدار!",
-            "لماذا يلبس رجال الإطفاء سراويل حمراء؟ حتى لا يروا النار تأتي من الأسفل!",
-            "ما هو الشيء الذي يخترق الزجاج ولا يكسره؟ الضوء!",
-            "لماذا لا يستطيع السمك العزف على البيانو؟ لأنه لا يعرف المفاتيح!",
-            "ما هو الشيء الذي كلما زاد نقص؟ العمر!",
-            "لماذا يلبس الغريق ساعة يد؟ ليعرف كم بقي من الوقت!",
-            "ما هو الشيء الذي يكتب ولا يقرأ؟ القلم!",
-            "لماذا يذهب الدجاج إلى الطبيب؟ لأنه يعاني من إنفلونزا الطيور!",
-            "ما هو الشيء الذي يدخل الماء ولا يبتل؟ الضوء!",
-            "لماذا لا يستطيع القطار الغناء؟ لأنه فقد صوته!",
-            "ما هو الشيء الذي له عين واحدة ولا يرى؟ الإبرة!",
-            "لماذا يلبس التاجر نظارة؟ ليرى الأرباح!",
-            "ما هو الشيء الذي يكسو الناس وهو عار؟ الإبرة!",
-            "لماذا يذهب الأطفال إلى المدرسة؟ لأن المدرسة لا تستطيع أن تأتي إليهم!",
-            "ما هو الشيء الذي يذهب ولا يرجع؟ الدخان!",
-            "لماذا يخاف القط من الماء؟ لأنه يخاف أن يتبلل!",
-            "ما هو الشيء الذي ينام مرتدياً حذاءه؟ الحصان!",
-            "لماذا لا يستطيع السمك الرقص؟ لأنه لا يعرف الإيقاع!",
-            "ما هو الشيء الذي يركض ولا يمشي؟ النهر!",
-            "لماذا يلبس اللص قفازات؟ حتى لا يترك بصماته!",
-            "ما هو الشيء الذي يخترق الحديد ولا يؤذيه؟ الصوت!",
-            "لماذا يلبس الطيار نظارة شمسية؟ ليبدو رائعًا!",
-            "ما هو الشيء الذي يطلبه الأغنياء ويمتلكه الفقراء؟ لا شيء!",
-            "لماذا يذهب السمك إلى المدرسة؟ ليتعلم كيف يسبح!",
-            "ما هو الشيء الذي يرفع أثقال ولا يتعب؟ المصعد!",
-            "لماذا لا يستطيع الفيل استخدام الكمبيوتر؟ لأن فأره صغير جدًا!",
-            "ما هو الشيء الذي يتحرك دائمًا ولا يتوقف؟ الزمن!",
-            "لماذا يلبس الطاهي قبعة عالية؟ ليبدو طويلًا!",
-            "ما هو الشيء الذي يخاف منه الماء؟ النار!",
-            "لماذا لا يستطيع البطريق الطيران؟ لأنه لا يعرف كيف يرفرف!",
-            "ما هو الشيء الذي يقطع دون سكين؟ الكلمة!",
-            "لماذا يلبس الرياضي حذاء رياضي؟ ليتمكن من الجري بسرعة!",
-            "ما هو الشيء الذي ينام وهو واقف؟ الحصان!",
-            "لماذا يذهب الطبيب إلى المدرسة؟ ليتعلم كيف يكتب الوصفات!",
-            "ما هو الشيء الذي يذهب إلى كل مكان ولا يتحرك؟ الظل!",
-            "لماذا لا يستطيع السمك العيش خارج الماء؟ لأنه لا يعرف كيف يتنفس!",
-            "ما هو الشيء الذي يخترق الجدار ولا يكسره؟ الصوت!",
-            "لماذا يلبس الجندي خوذة؟ ليحمي رأسه!",
-            "ما هو الشيء الذي ينام ولا يستيقظ؟ الميت!",
-            "لماذا يذهب التلميذ إلى المدرسة؟ لأنها إجبارية!",
-            "ما هو الشيء الذي يطير بلا أجنحة؟ الوقت!",
-            "لماذا يلبس السباح نظارة واقية؟ ليرى تحت الماء!",
-            "ما هو الشيء الذي يتحرك بلا أرجل؟ الثعبان!",
-            "لماذا لا يستطيع الحصان الغناء؟ لأنه لا يعرف النوتات!",
-            "ما هو الشيء الذي يكتب بلا يد؟ القلم الرصاص!",
-            "لماذا يلبس الطبيب معطفًا أبيض؟ ليبدو نظيفًا!",
-            "ما هو الشيء الذي يذهب ولا يعود؟ الشباب!",
-            "لماذا يذهب السمك إلى الطبيب؟ لأنه يعاني من قصر النظر!",
-            "ما هو الشيء الذي ينام وعيناه مفتوحتان؟ السمكة!",
-            "لماذا يلبس اللاعب قفازات؟ ليحمي يديه!",
-            "ما هو الشيء الذي يخترق الزجاج ولا يكسره؟ الضوء!",
-            "لماذا لا يستطيع الدب الرقص؟ لأنه لا يعرف الإيقاع!",
-            "ما هو الشيء الذي يذهب إلى المدرسة ولا يتعلم؟ الحافلة!",
-            "لماذا يلبس الطيار بذلة؟ ليبدو أنيقًا!",
-            "ما هو الشيء الذي ينام وهو واقف؟ الفيل!",
-            "لماذا يذهب الطفل إلى المدرسة؟ ليتعلم القراءة والكتابة!",
-            "ما هو الشيء الذي يخترق الحديد ولا يؤذيه؟ الصوت!",
-            "لماذا لا يستطيع السمك العيش على الأرض؟ لأنه لا يعرف كيف يمشي!",
-            "ما هو الشيء الذي يذهب ولا يرجع؟ الدخان!",
-            "لماذا يلبس الطاهي مئزرًا؟ ليحمي ملابسه!",
-            "ما هو الشيء الذي ينام وعيناه مفتوحتان؟ السمكة!",
-            "لماذا يذهب الطبيب إلى المدرسة؟ ليتعلم كيف يشخص الأمراض!",
-            "ما هو الشيء الذي يقطع دون سكين؟ الكلمة!",
-            "لماذا لا يستطيع الفيل استخدام الكمبيوتر؟ لأن فأره صغير جدًا!",
-            "ما هو الشيء الذي يرفع أثقال ولا يتعب؟ المصعد!",
-            "لماذا يذهب السمك إلى المدرسة؟ ليتعلم كيف يسبح!",
-            "ما هو الشيء الذي يطلبه الأغنياء ويمتلكه الفقراء؟ لا شيء!",
-            "لماذا يلبس الطيار نظارة شمسية؟ ليبدو رائعًا!",
-            "ما هو الشيء الذي يخترق الحديد ولا يؤذيه؟ الصوت!",
-            "لماذا يلبس اللص قفازات؟ حتى لا يترك بصماته!",
-            "ما هو الشيء الذي يركض ولا يمشي؟ النهر!",
-            "لماذا لا يستطيع السمك الرقص؟ لأنه لا يعرف الإيقاع!",
-            "ما هو الشيء الذي ينام مرتدياً حذاءه؟ الحصان!",
-            "لماذا يخاف القط من الماء؟ لأنه يخاف أن يتبلل!",
-            "ما هو الشيء الذي يذهب ولا يرجع؟ الدخان!",
-            "لماذا يذهب الأطفال إلى المدرسة؟ لأن المدرسة لا تستطيع أن تأتي إليهم!",
-            "ما هو الشيء الذي يكسو الناس وهو عار؟ الإبرة!",
-            "لماذا يلبس التاجر نظارة؟ ليرى الأرباح!",
-            "ما هو الشيء الذي له عين واحدة ولا يرى؟ الإبرة!",
-            "لماذا لا يستطيع القطار الغناء؟ لأنه فقد صوته!",
-            "ما هو الشيء الذي يدخل الماء ولا يبتل؟ الضوء!",
-            "لماذا يذهب الدجاج إلى الطبيب؟ لأنه يعاني من إنفلونزا الطيور!",
-            "ما هو الشيء الذي يكتب ولا يقرأ؟ القلم!",
-            "لماذا يلبس الغريق ساعة يد؟ ليعرف كم بقي من الوقت!",
-            "ما هو الشيء الذي كلما زاد نقص؟ العمر!"
+            "متى يكون الباب ليس بابًا؟ عندما يكون مفتوحًا!"
         ];
         
         document.getElementById('get-joke').addEventListener('click', () => {
@@ -755,8 +1100,12 @@
             });
         }
         
-        gameBoard.addEventListener('click', handleCellClick);
-        resetButton.addEventListener('click', resetGame);
+        if (gameBoard) {
+            gameBoard.addEventListener('click', handleCellClick);
+        }
+        if (resetButton) {
+            resetButton.addEventListener('click', resetGame);
+        }
         
         // لعبة الذاكرة
         const memoryBoard = document.getElementById('memory-board');
@@ -777,15 +1126,17 @@
             memoryGameActive = true;
             memoryStatus.textContent = 'اضغط على البطاقات للعثور على الأزواج المتطابقة';
             
-            memoryBoard.innerHTML = '';
-            memoryGameState.forEach((card, index) => {
-                const cardElement = document.createElement('div');
-                cardElement.classList.add('memory-card');
-                cardElement.setAttribute('data-card-index', index);
-                cardElement.textContent = '?';
-                cardElement.addEventListener('click', handleMemoryCardClick);
-                memoryBoard.appendChild(cardElement);
-            });
+            if (memoryBoard) {
+                memoryBoard.innerHTML = '';
+                memoryGameState.forEach((card, index) => {
+                    const cardElement = document.createElement('div');
+                    cardElement.classList.add('memory-card');
+                    cardElement.setAttribute('data-card-index', index);
+                    cardElement.textContent = '?';
+                    cardElement.addEventListener('click', handleMemoryCardClick);
+                    memoryBoard.appendChild(cardElement);
+                });
+            }
         }
         
         function handleMemoryCardClick(e) {
@@ -834,7 +1185,9 @@
             memoryGameActive = true;
         }
         
-        resetMemoryButton.addEventListener('click', initializeMemoryGame);
+        if (resetMemoryButton) {
+            resetMemoryButton.addEventListener('click', initializeMemoryGame);
+        }
         
         // تهيئة لعبة الذاكرة عند فتح القسم
         initializeMemoryGame();
@@ -871,31 +1224,6 @@
                 question: "ما هو العنصر الكيميائي الذي رمزه 'O'؟",
                 options: ["ذهب", "فضة", "أكسجين", "حديد"],
                 correct: 2
-            },
-            {
-                question: "من هو مؤلف مسرحية 'روميو وجولييت'؟",
-                options: ["شكسبير", "تشيخوف", "إبسن", "برنارد شو"],
-                correct: 0
-            },
-            {
-                question: "ما هو أسرع حيوان بري؟",
-                options: ["الفهد", "الأسد", "النمر", "الغزال"],
-                correct: 0
-            },
-            {
-                question: "كم عدد القلوب التي يمتلكها الأخطبوط؟",
-                options: ["1", "2", "3", "4"],
-                correct: 2
-            },
-            {
-                question: "ما هي اللغة الأكثر تحدثًا في العالم؟",
-                options: ["الإنجليزية", "الإسبانية", "المندرين", "الهندية"],
-                correct: 2
-            },
-            {
-                question: "في أي عام هبط الإنسان على القمر لأول مرة؟",
-                options: ["1965", "1969", "1972", "1975"],
-                correct: 1
             }
         ];
         
@@ -970,8 +1298,12 @@
             startQuizBtn.style.display = 'inline-block';
         }
         
-        startQuizBtn.addEventListener('click', startQuiz);
-        nextQuestionBtn.addEventListener('click', nextQuestion);
+        if (startQuizBtn) {
+            startQuizBtn.addEventListener('click', startQuiz);
+        }
+        if (nextQuestionBtn) {
+            nextQuestionBtn.addEventListener('click', nextQuestion);
+        }
         
         // قسم الموسيقى
         const uploadArea = document.getElementById('upload-area');
@@ -984,34 +1316,68 @@
         const durationEl = document.getElementById('duration');
         const trackTitle = document.getElementById('track-title');
         const trackArtist = document.getElementById('track-artist');
+        const repeatBtn = document.getElementById('repeat-btn');
+        const repeatStatus = document.getElementById('repeat-status');
+        const volumeBtn = document.getElementById('volume-btn');
+        
+        // عناصر إعدادات الصوت
+        const settingsToggle = document.getElementById('settings-toggle');
+        const settingsContent = document.getElementById('settings-content');
+        const volumeSlider = document.getElementById('volume-slider');
+        const volumeValue = document.getElementById('volume-value');
+        const balanceSlider = document.getElementById('balance-slider');
+        const balanceDisplay = document.getElementById('balance-display');
+        const speedSlider = document.getElementById('speed-slider');
+        const speedValue = document.getElementById('speed-value');
+        const eqLowSlider = document.getElementById('eq-low');
+        const eqMidSlider = document.getElementById('eq-mid');
+        const eqHighSlider = document.getElementById('eq-high');
+        const qualitySlider = document.getElementById('quality-slider');
+        const qualityValue = document.getElementById('quality-value');
+        const eqPreset = document.getElementById('eq-preset');
+        const resetSettingsBtn = document.getElementById('reset-settings');
+        const presetButtons = document.querySelectorAll('.preset-btn');
         
         let isPlaying = false;
         
+        // تحميل التفضيلات عند بدء تشغيل الصفحة
+        loadPreferences();
+        
         // تحميل الملفات
-        uploadArea.addEventListener('click', () => {
-            musicUpload.click();
-        });
+        if (uploadArea) {
+            uploadArea.addEventListener('click', () => {
+                musicUpload.click();
+            });
+        }
         
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.style.background = 'rgba(255, 255, 255, 0.2)';
-        });
+        if (uploadArea) {
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.background = 'rgba(255, 255, 255, 0.2)';
+            });
+        }
         
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.style.background = 'rgba(255, 255, 255, 0.1)';
-        });
+        if (uploadArea) {
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.background = 'rgba(255, 255, 255, 0.1)';
+            });
+        }
         
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.style.background = 'rgba(255, 255, 255, 0.1)';
-            
-            if (e.dataTransfer.files.length) {
-                musicUpload.files = e.dataTransfer.files;
-                handleMusicUpload();
-            }
-        });
+        if (uploadArea) {
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.background = 'rgba(255, 255, 255, 0.1)';
+                
+                if (e.dataTransfer.files.length) {
+                    musicUpload.files = e.dataTransfer.files;
+                    handleMusicUpload();
+                }
+            });
+        }
         
-        musicUpload.addEventListener('change', handleMusicUpload);
+        if (musicUpload) {
+            musicUpload.addEventListener('change', handleMusicUpload);
+        }
         
         function handleMusicUpload() {
             const file = musicUpload.files[0];
@@ -1037,7 +1403,9 @@
         }
         
         // التحكم بالمشغل
-        playBtn.addEventListener('click', togglePlay);
+        if (playBtn) {
+            playBtn.addEventListener('click', togglePlay);
+        }
         
         function togglePlay() {
             if (!audioPlayer.src) return;
@@ -1051,11 +1419,15 @@
             playBtn.textContent = isPlaying ? '⏸' : '▶';
         }
         
-        audioPlayer.addEventListener('loadedmetadata', () => {
-            durationEl.textContent = formatTime(audioPlayer.duration);
-        });
+        if (audioPlayer) {
+            audioPlayer.addEventListener('loadedmetadata', () => {
+                durationEl.textContent = formatTime(audioPlayer.duration);
+            });
+        }
         
-        audioPlayer.addEventListener('timeupdate', updateProgress);
+        if (audioPlayer) {
+            audioPlayer.addEventListener('timeupdate', updateProgress);
+        }
         
         function updateProgress() {
             const { currentTime, duration } = audioPlayer;
@@ -1065,13 +1437,16 @@
         }
         
         function formatTime(seconds) {
+            if (isNaN(seconds)) return '0:00';
             const mins = Math.floor(seconds / 60);
             const secs = Math.floor(seconds % 60);
             return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
         }
         
         // النقر على شريط التقدم
-        progressContainer.addEventListener('click', setProgress);
+        if (progressContainer) {
+            progressContainer.addEventListener('click', setProgress);
+        }
         
         function setProgress(e) {
             const width = progressContainer.clientWidth;
@@ -1081,143 +1456,175 @@
             audioPlayer.currentTime = (clickX / width) * duration;
         }
         
-        audioPlayer.addEventListener('ended', () => {
-            isPlaying = false;
-            playBtn.textContent = '▶';
-            progress.style.width = '0%';
-            currentTimeEl.textContent = '0:00';
-        });
+        // إضافة إعادة التشغيل التلقائي
+        if (repeatBtn) {
+            repeatBtn.addEventListener('click', toggleRepeat);
+        }
         
-        // قسم الاقتباسات - 150 اقتباس
+        function toggleRepeat() {
+            isRepeatEnabled = !isRepeatEnabled;
+            
+            // حفظ التفضيلات عند التغيير
+            savePreferences();
+            
+            // تحديث واجهة المستخدم
+            updateRepeatUI();
+        }
+        
+        if (audioPlayer) {
+            audioPlayer.addEventListener('ended', () => {
+                if (isRepeatEnabled) {
+                    // إعادة تشغيل الموسيقى تلقائياً
+                    audioPlayer.currentTime = 0;
+                    audioPlayer.play();
+                } else {
+                    // التوقف عند انتهاء الموسيقى
+                    isPlaying = false;
+                    playBtn.textContent = '▶';
+                    progress.style.width = '0%';
+                    currentTimeEl.textContent = '0:00';
+                }
+            });
+        }
+        
+        // التحكم في إعدادات الصوت
+        if (settingsToggle) {
+            settingsToggle.addEventListener('click', () => {
+                isSettingsOpen = !isSettingsOpen;
+                settingsContent.classList.toggle('active', isSettingsOpen);
+                settingsToggle.querySelector('span').textContent = isSettingsOpen ? '▲' : '▼';
+            });
+        }
+        
+        // مستوى الصوت
+        if (volumeSlider) {
+            volumeSlider.addEventListener('input', () => {
+                volumeLevel = volumeSlider.value;
+                updateVolumeUI();
+                savePreferences();
+            });
+        }
+        
+        // التوازن
+        if (balanceSlider) {
+            balanceSlider.addEventListener('input', () => {
+                balanceLevel = balanceSlider.value;
+                updateBalanceUI();
+                savePreferences();
+            });
+        }
+        
+        // سرعة التشغيل
+        if (speedSlider) {
+            speedSlider.addEventListener('input', () => {
+                playbackSpeed = speedSlider.value / 10;
+                updateSpeedUI();
+                savePreferences();
+            });
+        }
+        
+        // معادل الصوت
+        if (eqLowSlider) {
+            eqLowSlider.addEventListener('input', () => {
+                eqLowValue = eqLowSlider.value;
+                currentEQPreset = 'custom';
+                updateEQPresetUI();
+                savePreferences();
+            });
+        }
+        
+        if (eqMidSlider) {
+            eqMidSlider.addEventListener('input', () => {
+                eqMidValue = eqMidSlider.value;
+                currentEQPreset = 'custom';
+                updateEQPresetUI();
+                savePreferences();
+            });
+        }
+        
+        if (eqHighSlider) {
+            eqHighSlider.addEventListener('input', () => {
+                eqHighValue = eqHighSlider.value;
+                currentEQPreset = 'custom';
+                updateEQPresetUI();
+                savePreferences();
+            });
+        }
+        
+        // جودة الصوت
+        if (qualitySlider) {
+            qualitySlider.addEventListener('input', () => {
+                audioQuality = parseInt(qualitySlider.value);
+                updateQualityUI();
+                savePreferences();
+            });
+        }
+        
+        // الإعدادات المسبقة للمعادل
+        if (presetButtons) {
+            presetButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const preset = btn.getAttribute('data-preset');
+                    applyEQPreset(preset);
+                });
+            });
+        }
+        
+        // إعادة تعيين الإعدادات
+        if (resetSettingsBtn) {
+            resetSettingsBtn.addEventListener('click', () => {
+                volumeLevel = 50;
+                balanceLevel = 50;
+                playbackSpeed = 1.0;
+                eqLowValue = 50;
+                eqMidValue = 50;
+                eqHighValue = 50;
+                audioQuality = 3;
+                currentEQPreset = 'normal';
+                
+                updateVolumeUI();
+                updateBalanceUI();
+                updateSpeedUI();
+                updateEqualizerUI();
+                updateQualityUI();
+                updateEQPresetUI();
+                savePreferences();
+            });
+        }
+        
+        // زر التحكم في الصوت
+        if (volumeBtn) {
+            volumeBtn.addEventListener('click', () => {
+                if (volumeLevel > 0) {
+                    volumeLevel = 0;
+                } else {
+                    volumeLevel = 50;
+                }
+                updateVolumeUI();
+                savePreferences();
+            });
+        }
+        
+        // قسم الاقتباسات
         const quotes = [
             { text: "الحياة إما مغامرة جريئة أو لا شيء.", author: "هيلين كيلر" },
             { text: "أنت لا تحتاج إلى رؤية السلم بأكمله، فقط اخطو الخطوة الأولى.", author: "مارتن لوثر كينغ" },
-            { text: "النجاح ليس نهائياً، والفشل ليس قاتلاً: إنها الشجاعة للمواصلة هي التي تهم.", author: "ونستون تشرشل" },
-            { text: "الطريقة الوحيدة للقيام بعمل رائع هي أن تحب ما تفعله.", author: "ستيف جوبز" },
-            { text: "لا تحلم بالنجاح، اعمل من أجله.", author: "غير معروف" },
-            { text: "المستقبل ينتمي لأولئك الذين يؤمنون بجمال أحلامهم.", author: "إليانور روزفلت" },
-            { text: "كن التغيير الذي تريد رؤيته في العالم.", author: "المهاتما غاندي" },
-            { text: "لا تتوقف عن التعلم، فالحياة لا تتوقف عن التعليم.", author: "غير معروف" },
-            { text: "النجاح هو مجموع الجهود الصغيرة المتكررة يومياً.", author: "روبرت كولير" },
-            { text: "الحياة مثل ركوب الدراجة، للحفاظ على توازنك يجب أن تستمّر في التحرك.", author: "ألبرت أينشتاين" },
-            { text: "لا تنتظر الظروف المثالية، فهي لن تأتي أبداً.", author: "جورج إليوت" },
-            { text: "الوقت هو المال.", author: "بنجامين فرانكلين" },
-            { text: "الخيال أكثر أهمية من المعرفة.", author: "ألبرت أينشتاين" },
-            { text: "أنت لا تحصل على ما تستحقه، بل تحصل على ما تتفاوض عليه.", author: "تشيستر كarrass" },
-            { text: "الحياة 10% ما يحدث لك و90% كيف تستجيب له.", author: "تشارلز سويندول" },
-            { text: "الطموح هو الطريق إلى النجاح، والمثابرة هي السيارة التي تصل بك.", author: "بيل برادلي" },
-            { text: "لا يمكنك عبور البحر بمجرد الوقوف والتحديق في الماء.", author: "رابندرانات طاغور" },
-            { text: "النجاح هو الانتقال من فشل إلى فشل دون فقدان الحماس.", author: "ونستون تشرشل" },
-            { text: "الفرق بين الشخص العادي والعبقري هو أن العبقري لديه حدود.", author: "ألبرت أينشتاين" },
-            { text: "لا تخف من التخلي عن الجيد للحصول على الرائع.", author: "جون د. روكفلر" },
-            { text: "الطموح هو حجر الزاوية في النجاح.", author: "غير معروف" },
-            { text: "أنت لا تختار ظروفك، لكنك تختار كيف تتعامل معها.", author: "غير معروف" },
-            { text: "الحكمة تبدأ في التعجب.", author: "سقراط" },
-            { text: "النجاح ليس مفتاح السعادة، السعادة هي مفتاح النجاح.", author: "ألبرت شفايتزر" },
-            { text: "لا تبحث عن أخطاء، ابحث عن حلول.", author: "هنري فورد" },
-            { text: "الحياة بسيطة، لكننا نصر على تعقيدها.", author: "كونفوشيوس" },
-            { text: "الوقت الذي تضيعه ليس وقتاً ضائعاً.", author: "غير معروف" },
-            { text: "النجاح هو الحصول على ما تريد، والسعادة هي أن تريد ما تحصل عليه.", author: "ديل كارنيجي" },
-            { text: "لا يمكنك تغيير اتجاه الريح، ولكن يمكنك تعديل أشرعتك لتصل دائماً إلى وجهتك.", author: "جيمي دين" },
-            { text: "الخوف من الموت يأتي من خوف الحياة، إنسان يعيش بشكل كامل يكون مستعداً للموت في أي وقت.", author: "مارك توين" },
-            { text: "الحياة هي ما يحدث لك بينما أنت مشغول في عمل خطط أخرى.", author: "جون لينون" },
-            { text: "النجاح هو أن تنتقل من فشل إلى فشل دون أن تفقد حماسك.", author: "ونستون تشرشل" },
-            { text: "لا تنتقد، لا تشكو، لا تتحسر.", author: "غير معروف" },
-            { text: "الحياة مثل البصل: تقشرها طبقة تلو الأخرى، وأحيانًا تبكي.", author: "كارل ساندبرغ" },
-            { text: "النجاح ليس في عدم الفشل، بل في القيام بعد كل فشل.", author: "غير معروف" },
-            { text: "الحياة قصيرة، كسر القواعد، سامح بسرعة، قبل ببطء، لا تندم أبداً على أي شيء يجعلك تبتسم.", author: "مارك توين" },
-            { text: "النجاح هو مجموع الجهود الصغيرة المتكررة يومياً.", author: "روبرت كولير" },
-            { text: "الحياة 10% ما يحدث لك و90% كيف تستجيب له.", author: "تشارلز سويندول" },
-            { text: "لا تتوقف عندما تتعب، توقف عندما تنتهي.", author: "غير معروف" },
-            { text: "الحياة إما مغامرة جريئة أو لا شيء.", author: "هيلين كيلر" },
-            { text: "أنت لا تحتاج إلى رؤية السلم بأكمله، فقط اخطو الخطوة الأولى.", author: "مارتن لوثر كينغ" },
-            { text: "النجاح ليس نهائياً، والفشل ليس قاتلاً: إنها الشجاعة للمواصلة هي التي تهم.", author: "ونستون تشرشل" },
-            { text: "الطريقة الوحيدة للقيام بعمل رائع هي أن تحب ما تفعله.", author: "ستيف جوبز" },
-            { text: "لا تحلم بالنجاح، اعمل من أجله.", author: "غير معروف" },
-            { text: "المستقبل ينتمي لأولئك الذين يؤمنون بجمال أحلامهم.", author: "إليانور روزفلت" },
-            { text: "كن التغيير الذي تريد رؤيته في العالم.", author: "المهاتما غاندي" },
-            { text: "لا تتوقف عن التعلم، فالحياة لا تتوقف عن التعليم.", author: "غير معروف" },
-            { text: "النجاح هو مجموع الجهود الصغيرة المتكررة يومياً.", author: "روبرت كولير" },
-            { text: "الحياة مثل ركوب الدراجة، للحفاظ على توازنك يجب أن تستمّر في التحرك.", author: "ألبرت أينشتاين" },
-            { text: "لا تنتظر الظروف المثالية، فهي لن تأتي أبداً.", author: "جورج إليوت" },
-            { text: "الوقت هو المال.", author: "بنجامين فرانكلين" },
-            { text: "الخيال أكثر أهمية من المعرفة.", author: "ألبرت أينشتاين" },
-            { text: "أنت لا تحصل على ما تستحقه، بل تحصل على ما تتفاوض عليه.", author: "تشيستر كarrass" },
-            { text: "الحياة 10% ما يحدث لك و90% كيف تستجيب له.", author: "تشارلز سويندول" },
-            { text: "الطموح هو الطريق إلى النجاح، والمثابرة هي السيارة التي تصل بك.", author: "بيل برادلي" },
-            { text: "لا يمكنك عبور البحر بمجرد الوقوف والتحديق في الماء.", author: "رابندرانات طاغور" },
-            { text: "النجاح هو الانتقال من فشل إلى فشل دون فقدان الحماس.", author: "ونستون تشرشل" },
-            { text: "الفرق بين الشخص العادي والعبقري هو أن العبقري لديه حدود.", author: "ألبرت أينشتاين" },
-            { text: "لا تخف من التخلي عن الجيد للحصول على الرائع.", author: "جون د. روكفلر" },
-            { text: "الطموح هو حجر الزاوية في النجاح.", author: "غير معروف" },
-            { text: "أنت لا تختار ظروفك، لكنك تختار كيف تتعامل معها.", author: "غير معروف" },
-            { text: "الحكمة تبدأ في التعجب.", author: "سقراط" },
-            { text: "النجاح ليس مفتاح السعادة، السعادة هي مفتاح النجاح.", author: "ألبرت شفايتزر" },
-            { text: "لا تبحث عن أخطاء، ابحث عن حلول.", author: "هنري فورد" },
-            { text: "الحياة بسيطة، لكننا نصر على تعقيدها.", author: "كونفوشيوس" },
-            { text: "الوقت الذي تضيعه ليس وقتاً ضائعاً.", author: "غير معروف" },
-            { text: "النجاح هو الحصول على ما تريد، والسعادة هي أن تريد ما تحصل عليه.", author: "ديل كارنيجي" },
-            { text: "لا يمكنك تغيير اتجاه الريح، ولكن يمكنك تعديل أشرعتك لتصل دائماً إلى وجهتك.", author: "جيمي دين" },
-            { text: "الخوف من الموت يأتي من خوف الحياة، إنسان يعيش بشكل كامل يكون مستعداً للموت في أي وقت.", author: "مارك توين" },
-            { text: "الحياة هي ما يحدث لك بينما أنت مشغول في عمل خطط أخرى.", author: "جون لينون" },
-            { text: "النجاح هو أن تنتقل من فشل إلى فشل دون أن تفقد حماسك.", author: "ونستون تشرشل" },
-            { text: "لا تنتقد، لا تشكو، لا تتحسر.", author: "غير معروف" },
-            { text: "الحياة مثل البصل: تقشرها طبقة تلو الأخرى، وأحيانًا تبكي.", author: "كارل ساندبرغ" },
-            { text: "النجاح ليس في عدم الفشل، بل في القيام بعد كل فشل.", author: "غير معروف" },
-            { text: "الحياة قصيرة، كسر القواعد، سامح بسرعة، قبل ببطء، لا تندم أبداً على أي شيء يجعلك تبتسم.", author: "مارك توين" },
-            { text: "النجاح هو مجموع الجهود الصغيرة المتكررة يومياً.", author: "روبرت كولير" },
-            { text: "الحياة 10% ما يحدث لك و90% كيف تستجيب له.", author: "تشارلز سويندول" },
-            { text: "لا تتوقف عندما تتعب، توقف عندما تنتهي.", author: "غير معروف" },
-            { text: "الحياة إما مغامرة جريئة أو لا شيء.", author: "هيلين كيلر" },
-            { text: "أنت لا تحتاج إلى رؤية السلم بأكمله، فقط اخطو الخطوة الأولى.", author: "مارتن لوثر كينغ" },
-            { text: "النجاح ليس نهائياً، والفشل ليس قاتلاً: إنها الشجاعة للمواصلة هي التي تهم.", author: "ونستون تشرشل" },
-            { text: "الطريقة الوحيدة للقيام بعمل رائع هي أن تحب ما تفعله.", author: "ستيف جوبز" },
-            { text: "لا تحلم بالنجاح، اعمل من أجله.", author: "غير معروف" },
-            { text: "المستقبل ينتمي لأولئك الذين يؤمنون بجمال أحلامهم.", author: "إليانور روزفلت" },
-            { text: "كن التغيير الذي تريد رؤيته في العالم.", author: "المهاتما غاندي" },
-            { text: "لا تتوقف عن التعلم، فالحياة لا تتوقف عن التعليم.", author: "غير معروف" },
-            { text: "النجاح هو مجموع الجهود الصغيرة المتكررة يومياً.", author: "روبرت كولير" },
-            { text: "الحياة مثل ركوب الدراجة، للحفاظ على توازنك يجب أن تستمّر في التحرك.", author: "ألبرت أينشتاين" },
-            { text: "لا تنتظر الظروف المثالية، فهي لن تأتي أبداً.", author: "جورج إليوت" },
-            { text: "الوقت هو المال.", author: "بنجامين فرانكلين" },
-            { text: "الخيال أكثر أهمية من المعرفة.", author: "ألبرت أينشتاين" },
-            { text: "أنت لا تحصل على ما تستحقه، بل تحصل على ما تتفاوض عليه.", author: "تشيستر كarrass" },
-            { text: "الحياة 10% ما يحدث لك و90% كيف تستجيب له.", author: "تشارلز سويندول" },
-            { text: "الطموح هو الطريق إلى النجاح، والمثابرة هي السيارة التي تصل بك.", author: "بيل برادلي" },
-            { text: "لا يمكنك عبور البحر بمجرد الوقوف والتحديق في الماء.", author: "رابندرانات طاغور" },
-            { text: "النجاح هو الانتقال من فشل إلى فشل دون فقدان الحماس.", author: "ونستون تشرشل" },
-            { text: "الفرق بين الشخص العادي والعبقري هو أن العبقري لديه حدود.", author: "ألبرت أينشتاين" },
-            { text: "لا تخف من التخلي عن الجيد للحصول على الرائع.", author: "جون د. روكفلر" },
-            { text: "الطموح هو حجر الزاوية في النجاح.", author: "غير معروف" },
-            { text: "أنت لا تختار ظروفك، لكنك تختار كيف تتعامل معها.", author: "غير معروف" },
-            { text: "الحكمة تبدأ في التعجب.", author: "سقراط" },
-            { text: "النجاح ليس مفتاح السعادة، السعادة هي مفتاح النجاح.", author: "ألبرت شفايتزر" },
-            { text: "لا تبحث عن أخطاء، ابحث عن حلول.", author: "هنري فورد" },
-            { text: "الحياة بسيطة، لكننا نصر على تعقيدها.", author: "كونفوشيوس" },
-            { text: "الوقت الذي تضيعه ليس وقتاً ضائعاً.", author: "غير معروف" },
-            { text: "النجاح هو الحصول على ما تريد، والسعادة هي أن تريد ما تحصل عليه.", author: "ديل كارنيجي" },
-            { text: "لا يمكنك تغيير اتجاه الريح، ولكن يمكنك تعديل أشرعتك لتصل دائماً إلى وجهتك.", author: "جيمي دين" },
-            { text: "الخوف من الموت يأتي من خوف الحياة، إنسان يعيش بشكل كامل يكون مستعداً للموت في أي وقت.", author: "مارك توين" },
-            { text: "الحياة هي ما يحدث لك بينما أنت مشغول في عمل خطط أخرى.", author: "جون لينون" },
-            { text: "النجاح هو أن تنتقل من فشل إلى فشل دون أن تفقد حماسك.", author: "ونستون تشرشل" },
-            { text: "لا تنتقد، لا تشكو، لا تتحسر.", author: "غير معروف" },
-            { text: "الحياة مثل البصل: تقشرها طبقة تلو الأخرى، وأحيانًا تبكي.", author: "كارل ساندبرغ" },
-            { text: "النجاح ليس في عدم الفشل، بل في القيام بعد كل فشل.", author: "غير معروف" },
-            { text: "الحياة قصيرة، كسر القواعد، سامح بسرعة، قبل ببطء، لا تندم أبداً على أي شيء يجعلك تبتسم.", author: "مارك توين" },
-            { text: "النجاح هو مجموع الجهود الصغيرة المتكررة يومياً.", author: "روبرت كولير" },
-            { text: "الحياة 10% ما يحدث لك و90% كيف تستجيب له.", author: "تشارلز سويندول" },
-            { text: "لا تتوقف عندما تتعب، توقف عندما تنتهي.", author: "غير معروف" }
+            { text: "النجاح ليس نهائياً، والفشل ليس قاتلاً: إنها الشجاعة للمواصلة هي التي تهم.", author: "ونستون تشرشل" }
         ];
         
-        document.getElementById('get-quote').addEventListener('click', () => {
-            const randomIndex = Math.floor(Math.random() * quotes.length);
-            document.getElementById('quote-text').textContent = quotes[randomIndex].text;
-            document.getElementById('quote-author').textContent = `- ${quotes[randomIndex].author}`;
-        });
+        if (document.getElementById('get-quote')) {
+            document.getElementById('get-quote').addEventListener('click', () => {
+                const randomIndex = Math.floor(Math.random() * quotes.length);
+                document.getElementById('quote-text').textContent = quotes[randomIndex].text;
+                document.getElementById('quote-author').textContent = `- ${quotes[randomIndex].author}`;
+            });
+        }
         
         // تحميل أول اقتباس
-        document.getElementById('quote-text').textContent = quotes[0].text;
-        document.getElementById('quote-author').textContent = `- ${quotes[0].author}`;
+        if (document.getElementById('quote-text')) {
+            document.getElementById('quote-text').textContent = quotes[0].text;
+            document.getElementById('quote-author').textContent = `- ${quotes[0].author}`;
+        }
     </script>
 </body>
 </html>
